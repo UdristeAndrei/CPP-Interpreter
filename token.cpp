@@ -16,7 +16,7 @@ enum TokenTypeEnum {
     TOKEN_PLUS   = 301,
 
     // Delimiters
-    TOKEN_COMA      = 400,
+    TOKEN_COMMA      = 400,
     TOKEN_SEMICOLON = 401,
 
     TOKEN_LPAREN = 402, // (
