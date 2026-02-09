@@ -1,4 +1,5 @@
 #include<string>
+#include<map>
 
 enum TokenTypeEnum {
     TOKEN_INIT = 0,
@@ -29,8 +30,24 @@ enum TokenTypeEnum {
     TOKEN_LET      = 501
 };
 
+std::map<char, TokenTypeEnum> charToEnum{ 
+    {'=', TOKEN_ASSIGN},
+    {'+', TOKEN_PLUS},
+    {'(', TOKEN_LPAREN},
+    {')', TOKEN_RPAREN},
+    {'{', TOKEN_LBRACE},
+    {'}', TOKEN_RBRACE},
+    {',', TOKEN_COMMA},
+    {';', TOKEN_SEMICOLON},
+    {EOF, TOKEN_EOF}
+};
+
 
 struct Token {
     TokenTypeEnum TokenType{TOKEN_INIT};
-    std::string Value{};
+    std::string Literal{};
 };
+
+Token newToken(TokenTypeEnum tokenType, char& ch) {
+    return Token{tokenType, std::string(1, ch)};
+}
