@@ -35,6 +35,7 @@ void TestNextToken() {
         {TOKEN_IDENT, "x"},
         {TOKEN_PLUS, "+"},
         {TOKEN_IDENT, "y"},
+        {TOKEN_SEMICOLON, ";"},
         {TOKEN_RBRACE, "}"},
         {TOKEN_SEMICOLON, ";"},
         {TOKEN_LET, "let"},
@@ -49,4 +50,24 @@ void TestNextToken() {
         {TOKEN_SEMICOLON, ";"},
         {TOKEN_EOF, ""}
     };
+
+    std::shared_ptr<Lexer> l = newLexer(input);
+    int i{0};
+    for (const auto testToken : testCase){
+        Token tok = nextToken(l);
+
+        if (tok.TokenType != testToken.TokenType) {
+            printf("tests[%d] - tokentype wrong. expected=%d, got=%d\n", i, testToken.TokenType, tok.TokenType);
+        }
+
+        if (tok.Literal != testToken.Literal) {
+            printf("tests[%d] - literal wrong. expected=%s, got=%s\n", i, testToken.Literal.c_str(), tok.Literal.c_str());
+        }
+        i++;
+    }
+    printf("Test run successfully!\n");
+}
+
+int main() {
+    TestNextToken();
 }
