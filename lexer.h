@@ -21,6 +21,12 @@ void readChar(std::shared_ptr<Lexer> l) {
     l->readPosition++;
 }
 
+void skipWhitespace(std::shared_ptr<Lexer> l) {
+    while (l->ch == ' ' || l->ch == '\t' || l->ch == '\n' || l->ch == '\r'){
+        readChar(l);
+    }
+}
+
 std::shared_ptr<Lexer> newLexer(std::string& input) {
     std::shared_ptr<Lexer> l = std::make_shared<Lexer>();
     l->input = input;
@@ -28,8 +34,31 @@ std::shared_ptr<Lexer> newLexer(std::string& input) {
     return l;
 }
 
+
+bool isLetter(char c) {
+    return std::isalpha(c) || c == '_';
+}
+
+
+std::string readIdentifier(std::shared_ptr<Lexer> l) {
+    unsigned int startPosition = l->position;
+    while (isLetter(l->ch)) {
+        readChar(l);
+    }
+    return l->input.substr(startPosition, l->position - startPosition);
+}
+
+std::string readNumber(std::shared_ptr<Lexer> l) {
+    unsigned int startPosition = l->position;
+    while(std::isalnum(l->ch)) {
+        readChar(l);
+    }
+    return l->input.substr(startPosition, l->position - startPosition);
+}
+
 Token nextToken (std::shared_ptr<Lexer> l) {
     Token tok{};
+    skipWhitespace(l);
 
     switch (charToEnum[l->ch]) {
         case TOKEN_ASSIGN: 
@@ -64,10 +93,24 @@ Token nextToken (std::shared_ptr<Lexer> l) {
             tok = newToken(TOKEN_RBRACE, l->ch);
             break;
 
-        case 0:
+        case TOKEN_EOF:
             tok.Literal   = "";
             tok.TokenType = TOKEN_EOF;
             break;
+
+        default:
+            if (isLetter(l->ch)) {
+                tok.Literal = readIdentifier(l);
+                tok.TokenType = lookupIdent(tok.Literal);
+                return tok;
+
+            } else if (std::isalnum(l->ch)){
+                tok.Literal = readNumber(l);
+                tok.TokenType = TOKEN_INT;
+                return tok;
+            } else {
+                tok = newToken(TOKEN_ILLEGAL, l->ch);
+            }
         }
 
     readChar(l);

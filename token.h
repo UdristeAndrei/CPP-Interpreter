@@ -30,7 +30,7 @@ enum TokenTypeEnum {
     TOKEN_LET      = 501
 };
 
-std::map<char, TokenTypeEnum> charToEnum{ 
+std::map<char, TokenTypeEnum> charToEnum { 
     {'=', TOKEN_ASSIGN},
     {'+', TOKEN_PLUS},
     {'(', TOKEN_LPAREN},
@@ -39,9 +39,13 @@ std::map<char, TokenTypeEnum> charToEnum{
     {'}', TOKEN_RBRACE},
     {',', TOKEN_COMMA},
     {';', TOKEN_SEMICOLON},
-    {EOF, TOKEN_EOF}
+    {0, TOKEN_EOF}, 
 };
 
+std::map<std::string, TokenTypeEnum> keywords {
+    {"fn", TOKEN_FUNCTION},
+    {"let", TOKEN_LET}
+};
 
 struct Token {
     TokenTypeEnum TokenType{TOKEN_INIT};
@@ -50,4 +54,8 @@ struct Token {
 
 Token newToken(TokenTypeEnum tokenType, char& ch) {
     return Token{tokenType, std::string(1, ch)};
+}
+
+TokenTypeEnum lookupIdent(std::string& ident) {
+    return (keywords.find(ident) != keywords.end()) ? keywords[ident] : TOKEN_IDENT;
 }
