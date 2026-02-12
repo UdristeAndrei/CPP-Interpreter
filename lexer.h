@@ -35,6 +35,14 @@ std::shared_ptr<Lexer> newLexer(std::string& input) {
 }
 
 
+char peekChar(std::shared_ptr<Lexer> l) {
+    if (l->readPosition >= l->input.length()){
+        return 0;
+    } else {
+        return l->input[l->readPosition];
+    }
+}
+
 bool isLetter(char c) {
     return std::isalpha(c) || c == '_';
 }
@@ -62,7 +70,13 @@ Token nextToken (std::shared_ptr<Lexer> l) {
 
     switch (charToEnum[l->ch]) {
         case TOKEN_ASSIGN: 
-            tok = newToken(TOKEN_ASSIGN, l->ch);
+            if (peekChar(l) == '=') {
+                char ch = l->ch;
+                readChar(l);
+                tok = Token{TOKEN_EQ, std::string(1, ch) + l->ch};
+            } else {
+                tok = newToken(TOKEN_ASSIGN, l->ch);
+            }
             break;
 
         case TOKEN_SEMICOLON:
@@ -83,6 +97,36 @@ Token nextToken (std::shared_ptr<Lexer> l) {
 
         case TOKEN_PLUS:
             tok = newToken(TOKEN_PLUS, l->ch);
+            break;
+
+        case TOKEN_MINUS:
+            tok = newToken(TOKEN_MINUS, l->ch);
+            break;
+
+        case TOKEN_BANG:
+            if (peekChar(l) == '=') {
+                char ch = l->ch;
+                readChar(l);
+                tok = Token{TOKEN_NOT_EQ, std::string(1, ch) + l->ch};
+            } else {
+                tok = newToken(TOKEN_BANG, l->ch);
+            }
+            break;
+
+        case TOKEN_SLASH:
+            tok = newToken(TOKEN_SLASH, l->ch);
+            break;
+
+        case TOKEN_ASTERISK:
+            tok = newToken(TOKEN_ASTERISK, l->ch);
+            break;
+
+        case TOKEN_LT:
+            tok = newToken(TOKEN_LT, l->ch);
+            break;
+
+        case TOKEN_GT:
+            tok = newToken(TOKEN_GT, l->ch);
             break;
         
         case TOKEN_LBRACE:

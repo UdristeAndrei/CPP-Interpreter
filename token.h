@@ -13,11 +13,20 @@ enum TokenTypeEnum {
     TOKEN_INT   = 201,   // 1343456
 
     // Operators
-    TOKEN_ASSIGN = 300,
-    TOKEN_PLUS   = 301,
+    TOKEN_ASSIGN    = 300,
+    TOKEN_PLUS      = 301,
+    TOKEN_MINUS     = 302,
+    TOKEN_BANG      = 303, // !
+    TOKEN_ASTERISK  = 304,
+    TOKEN_SLASH     = 305,
+
+    TOKEN_LT        = 306, // <
+    TOKEN_GT        = 307, // >
+    TOKEN_EQ        = 308, // ==
+    TOKEN_NOT_EQ    = 309, // !=
 
     // Delimiters
-    TOKEN_COMMA      = 400,
+    TOKEN_COMMA     = 400,
     TOKEN_SEMICOLON = 401,
 
     TOKEN_LPAREN = 402, // (
@@ -26,13 +35,24 @@ enum TokenTypeEnum {
     TOKEN_RBRACE = 405, // }
 
     // Keywords
-    TOKEN_FUNCTION = 500,
-    TOKEN_LET      = 501
+    TOKEN_FUNCTION  = 500,
+    TOKEN_LET       = 501,
+    TOKEN_TRUE      = 502,
+    TOKEN_FALSE     = 503,
+    TOKEN_IF        = 504,
+    TOKEN_ELSE      = 505,
+    TOKEN_RETURN    = 505
 };
 
 std::map<char, TokenTypeEnum> charToEnum { 
     {'=', TOKEN_ASSIGN},
     {'+', TOKEN_PLUS},
+    {'-', TOKEN_MINUS},
+    {'!', TOKEN_BANG},
+    {'*', TOKEN_ASTERISK},
+    {'/', TOKEN_SLASH},
+    {'<', TOKEN_LT},
+    {'>', TOKEN_GT},
     {'(', TOKEN_LPAREN},
     {')', TOKEN_RPAREN},
     {'{', TOKEN_LBRACE},
@@ -44,7 +64,12 @@ std::map<char, TokenTypeEnum> charToEnum {
 
 std::map<std::string, TokenTypeEnum> keywords {
     {"fn", TOKEN_FUNCTION},
-    {"let", TOKEN_LET}
+    {"let", TOKEN_LET},
+    {"true", TOKEN_TRUE},
+    {"false", TOKEN_FALSE},
+    {"if", TOKEN_IF},
+    {"else", TOKEN_ELSE},
+    {"return", TOKEN_RETURN}
 };
 
 struct Token {
