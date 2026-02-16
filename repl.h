@@ -12,9 +12,9 @@ void Start() {
             break; // EOF or input error -> exit REPL
         }
 
-        std::shared_ptr<Lexer> l = newLexer(line);
+        Lexer myLexer{line};
 
-        for (Token tok = nextToken(l); tok.TokenType != TOKEN_EOF; tok = nextToken(l)) {
+        for (Token tok = myLexer.nextToken(); tok.TokenType != TOKEN_EOF; tok = myLexer.nextToken()) {
             std::cout << "RokenType - " << tok.TokenType;
             std::cout << ", Literal - " << tok.Literal << "\n";
         }

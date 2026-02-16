@@ -16,10 +16,10 @@ void TestNextToken() {
         {TOKEN_EOF, ""}
     };
 
-    std::shared_ptr<Lexer> l = newLexer(input);
+    Lexer myLexer{input};
     int i{0};
     for (const auto testToken : testCase){
-        Token tok = nextToken(l);
+        Token tok = myLexer.nextToken();
 
         if (tok.TokenType != testToken.TokenType) {
             printf("tests[%d] - tokentype wrong. expected=%d, got=%d\n", i, testToken.TokenType, tok.TokenType);
