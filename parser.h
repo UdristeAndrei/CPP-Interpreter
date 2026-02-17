@@ -1,22 +1,30 @@
 #include "lexer.h"
 #include "ast.h"
 
-struct Parser {
-    std::shared_ptr<Lexer> l;
-    Token curToken;
-    Token peekToken;
+class Parser {
+    private:
+        std::shared_ptr<Lexer> myLexer;
+        Token curToken;
+        Token peekToken;
 
-    void nextTokenParser() {
-        curToken = peekToken;
-        peekToken = nextToken(l);
-    }
+        void nextToken() {
+            curToken = peekToken;
+            peekToken = myLexer->nextToken();
+        }
 
-    std::shared_ptr<Parser> newParser(std::shared_ptr<Lexer> l) {
-        std::shared_ptr<Parser> p = std::make_shared<Parser>();
-        p->l = l;
+    public:
+        
+        Parser(std::shared_ptr<Lexer> l) {
+            myLexer = l;
 
-        nextTokenParser();
-        nextTokenParser();
-    }
+            nextToken();
+            nextToken();
+        }
+        
+        ~Parser() = default;
+        
+        std::shared_ptr<Program> ParseProgram() {
+            return nullptr;
+        }
 };
 
