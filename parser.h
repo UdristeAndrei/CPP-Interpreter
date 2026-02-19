@@ -1,11 +1,14 @@
 #include "lexer.h"
 #include "ast.h"
+#include<sstream>
+
 
 class Parser {
     private:
-        std::shared_ptr<Lexer> myLexer;
-        Token curToken;
-        Token peekToken;
+        std::shared_ptr<Lexer> myLexer{};
+        Token curToken{};
+        Token peekToken{};
+        std::vector<std::string> errors{};
 
         void nextToken() {
             curToken = peekToken;
@@ -25,23 +28,28 @@ class Parser {
                 nextToken();
                 return true;
             } else {
+                peekError(tokenType);
                 return false;
             }
         }
+
+        void peekError(TokenTypeEnum tokenType) {
+            std::ostringstream error{};
+            error << "expected next token to be " << tokenType << ", got " << peekToken.TokenType << " instead";
+            errors.push_back(error.str());
+        }
+
     public:
-        
         Parser(std::shared_ptr<Lexer> l) {
             myLexer = l;
 
             nextToken();
             nextToken();
         }
-        
         ~Parser() = default;
-        
+
         std::shared_ptr<LetStatement> parseLetStatement() {
-            auto letStmt = std::make_shared<LetStatement>();
-            letStmt->TokenStatement = curToken;
+            auto letStmt = std::make_shared<LetStatement>(curToken);
 
             if (!expectPeek(TOKEN_IDENT)) {
                 return nullptr;
@@ -53,8 +61,8 @@ class Parser {
                 return nullptr;
             }
 
-            if (!peekTokenIs(TOKEN_SEMICOLON)) {
-                return nullptr;
+            while (!curTokenIs(TOKEN_SEMICOLON)) {
+                nextToken();
             }
 
             return letStmt;
@@ -82,5 +90,7 @@ class Parser {
             }
             return program;
         }
+
+        std::vector<std::string>& Errors() { return errors; }
 };
 

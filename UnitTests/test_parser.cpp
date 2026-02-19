@@ -1,5 +1,18 @@
 #include "../parser.h"
 
+void checkParserErrors(Parser& parser) {
+    std::vector<std::string> errors = parser.Errors();
+
+    if (!errors.size()) {
+        return;
+    }
+
+    printf("parser has %li errors\n", errors.size());
+    for (const std::string& error : errors) {
+        printf("parser error: %s\n", error.c_str());
+    }
+}
+
 bool testLetStatement(std::shared_ptr<Statement> statement, std::string& name) {
     if (statement->TokenLiteral() != "let") {
         printf("statement->TokenLiteral is not 'let'. Got=%s", statement->TokenLiteral().c_str());
@@ -8,13 +21,13 @@ bool testLetStatement(std::shared_ptr<Statement> statement, std::string& name) {
 
     auto letStmt = std::dynamic_pointer_cast<LetStatement>(statement);
     if (letStmt == nullptr) {
-        printf("statement is not LetStatement");
+        printf("statement is not LetStatement\n");
         return false;
     } else if (letStmt->Name->Value != name) {
-        printf("letStmt->Name->Value not '%s'. Got=%s", name.c_str(), letStmt->Name->Value.c_str());
+        printf("letStmt->Name->Value not '%s'. Got=%s\n", name.c_str(), letStmt->Name->Value.c_str());
         return false;
     } else if (letStmt->Name->TokenLiteral() != name) {
-        printf("statement->name not '%s'. Got=%s", name.c_str(), letStmt->Name->TokenLiteral().c_str());
+        printf("statement->name not '%s'. Got=%s\n", name.c_str(), letStmt->Name->TokenLiteral().c_str());
         return false;
     }
     return true;
@@ -30,14 +43,16 @@ void TestLetStatements() {
     Parser myParser(myLexer);
 
     auto program = myParser.parseProgram();
+    checkParserErrors(myParser);
+    if (myParser.Errors().size()) { return; }
 
     if (program == nullptr) {
-        printf("ParseProgram() return nullptr");
+        printf("ParseProgram() return nullptr\n");
         return;
     }
 
     if (program->statements.size() != 3) {
-        printf("program.statements does not contain 3 statements. Got=%li", program->statements.size());
+        printf("program.statements does not contain 3 statements. Got=%li\n", program->statements.size());
         return;
     }
 
@@ -49,6 +64,7 @@ void TestLetStatements() {
             return;
         }
     }
+    printf("Test run successfully!\n");
 }
 
 int main() {
