@@ -29,7 +29,7 @@ void TestLetStatements() {
     auto myLexer = std::make_shared<Lexer>(input);
     Parser myParser(myLexer);
 
-    auto program = myParser.ParseProgram();
+    auto program = myParser.parseProgram();
 
     if (program == nullptr) {
         printf("ParseProgram() return nullptr");
