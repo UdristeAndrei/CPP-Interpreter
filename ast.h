@@ -63,3 +63,16 @@ class LetStatement : public Statement {
         void statementNode() const override {};
         std::string TokenLiteral() const override { return TokenStatement.Literal; };
 };
+
+class ReturnStatement : public Statement{
+    public:
+        Token TokenReturnStatement{};
+        std::shared_ptr<Expression> Value{};
+
+        ReturnStatement() = default;
+        ReturnStatement(const Token& t) : TokenReturnStatement(t) {};
+        ~ReturnStatement() = default;
+
+        void statementNode() const override {};
+        std::string TokenLiteral() const override { return TokenReturnStatement.Literal; };
+};

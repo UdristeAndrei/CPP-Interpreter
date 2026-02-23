@@ -68,11 +68,28 @@ class Parser {
             return letStmt;
         }
 
+        std::shared_ptr<ReturnStatement> parseReturnStatement() {
+            auto returnStms = std::make_shared<ReturnStatement>(curToken);
+
+            nextToken();
+
+            while (!curTokenIs(TOKEN_SEMICOLON)) {
+                nextToken();
+            }
+
+            return returnStms;
+        }
+
         std::shared_ptr<Statement> parseStatement() {
             switch (curToken.TokenType) {
                 case TOKEN_LET:
                     return parseLetStatement();
-                
+                    break;
+
+                case TOKEN_RETURN:
+                    return parseReturnStatement();
+                    break;
+
                 default:
                     return nullptr;
                 }

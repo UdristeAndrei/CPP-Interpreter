@@ -67,6 +67,44 @@ void TestLetStatements() {
     printf("Test run successfully!\n");
 }
 
+void TestReturnStatement() {
+    std::string input = R"(
+    return 5;
+    return 10;
+    return 123456;)";
+
+    auto myLexer = std::make_shared<Lexer>(input);
+    Parser myParser(myLexer);
+
+    auto program = myParser.parseProgram();
+    checkParserErrors(myParser);
+    if (myParser.Errors().size()) { return; }
+
+    if (program == nullptr) {
+        printf("ParseProgram() return nullptr\n");
+        return;
+    }
+
+    if (program->statements.size() != 3) {
+        printf("program.statements does not contain 3 statements. Got=%li\n", program->statements.size());
+        return;
+    }
+
+    for (auto& stmt : program->statements) {
+        auto returnStmt = std::dynamic_pointer_cast<ReturnStatement>(stmt);
+        if (returnStmt == nullptr) {
+            printf("statement is not ReturnStatement\n");
+            continue;
+        } 
+        if (returnStmt->TokenLiteral() != "return") {
+            printf("returnStmt.TokenLiteral() in not 'return', got %s\n", returnStmt->TokenLiteral().c_str());
+        }
+    }
+
+    printf("Test run successfully!\n");
+}
+
 int main() {
-    TestLetStatements();
+    // TestLetStatements();
+    TestReturnStatement();
 }
