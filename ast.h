@@ -122,3 +122,36 @@ class ExpressionStatement : public Statement {
 
         std::string String() const override { return (Value == nullptr) ? "" : Value->String(); }; 
 };
+
+class IntegerLiteral : public Expression {
+    public:
+        Token TokenIntegerLiteral{};
+        int64_t Value{0};
+
+        IntegerLiteral() = default;
+        IntegerLiteral(const Token& t) : TokenIntegerLiteral(t) {};
+        ~IntegerLiteral() = default;
+
+        void expressionNode() const override {};
+        std::string TokenLiteral() const override {return TokenIntegerLiteral.Literal; };
+        std::string String() const override {return TokenIntegerLiteral.Literal; };
+};
+
+class PrefixExpression : public Expression {
+    public:
+        Token TokenPrefixExpression{};
+        std::string OperatorValue{};
+        std::shared_ptr<Expression> Right{};
+
+        PrefixExpression() = default;
+        PrefixExpression(const Token& t, const std::string& v) : TokenPrefixExpression(t), OperatorValue(v) {};
+        ~PrefixExpression() = default;
+        
+        void expressionNode() const override {};
+        std::string TokenLiteral() const override {return TokenPrefixExpression.Literal; };
+        std::string String() const override {
+            std::ostringstream buffer{};
+            buffer << "(" << OperatorValue << Right->String() << ")";
+            return buffer.str();
+        }
+};

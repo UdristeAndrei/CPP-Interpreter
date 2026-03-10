@@ -104,7 +104,141 @@ void TestReturnStatement() {
     printf("Test run successfully!\n");
 }
 
+void TestIdentifierExpression() {
+    std::string input{"foobar;"};
+
+    Lexer myLexer{input};
+    Parser myParser{std::make_shared<Lexer>(myLexer)};
+    std::shared_ptr<Program> program = myParser.parseProgram();
+
+    checkParserErrors(myParser);
+    if (myParser.Errors().size()) { return; }
+
+    if (program->statements.size() != 1) {
+        printf("program.statements does not have enough statements. Got=%li\n", program->statements.size());
+    }
+
+    auto stmt = std::dynamic_pointer_cast<ExpressionStatement>(program->statements[0]);
+    if (stmt == nullptr) {
+        printf("program.statements[0] is not a ExpressionStatement.\n");
+    }
+
+    auto ident = std::dynamic_pointer_cast<Identifier>(stmt->Value);
+    if (ident == nullptr) {
+        printf("program.statements[0].Value not a Identifier.\n");
+    }
+
+    if (ident->Value != "foobar") {
+        printf("ident.Value not %s. Got=%s\n", "foobar", ident->Value.c_str());
+    }
+
+    if (ident->TokenLiteral() != "foobar"){
+        printf("ident.TokenLiteral() not %s. Got=%s\n", "foobar", ident->TokenLiteral().c_str());
+    }
+
+    printf("Test run successfully!\n");
+}
+
+void TestIntegerLiteralExpression() {
+    std::string input{"5;"};
+
+    Lexer myLexer{input};
+    Parser myParser{std::make_shared<Lexer>(myLexer)};
+    std::shared_ptr<Program> program = myParser.parseProgram();
+
+    checkParserErrors(myParser);
+    if (myParser.Errors().size()) { return; }
+
+    if (program->statements.size() != 1) {
+        printf("program.statements does not have enough statements. Got=%li\n", program->statements.size());
+    }
+
+    auto stmt = std::dynamic_pointer_cast<ExpressionStatement>(program->statements[0]);
+    if (stmt == nullptr) {
+        printf("program.statements[0] is not a ExpressionStatement.\n");
+    }
+
+    auto ident = std::dynamic_pointer_cast<IntegerLiteral>(stmt->Value);
+    if (ident == nullptr) {
+        printf("program.statements[0].Value not a Identifier.\n");
+    }
+
+    if (ident->Value != 5) {
+        printf("ident.Value not %i. Got=%li\n", 5, ident->Value);
+    }
+
+    if (ident->TokenLiteral() != "5"){
+        printf("ident.TokenLiteral() not %s. Got=%s\n", "5", ident->TokenLiteral().c_str());
+    }
+
+    printf("Test run successfully!\n");
+}
+
+
+bool testIntegerLiteral(std::shared_ptr<Expression> il, int64_t value) {
+    auto integer = std::dynamic_pointer_cast<IntegerLiteral>(il);
+    if (integer == nullptr) {
+        printf("il is not a IntegerLiteral\n");
+        return false;
+    }
+
+    if (integer->Value != value) {
+        printf("integer->Value not %li. Got=%li\n", value, integer->Value);
+        return false;
+    }
+
+    if (integer->TokenLiteral() != std::to_string(value)) {
+        printf("integer->TokenLiteral() not %li. Got=%s\n", value, integer->TokenLiteral().c_str());
+        return false;
+    }
+    return true;
+}
+
+void TestParsingPrefixExpressions() {
+    struct PrefixTest {
+        std::string input{};
+        std::string operatorValue{};
+        int64_t integerValue{};
+    };
+
+    std::vector<PrefixTest> prefixTests{{"!5", "!", 5}, {"-15", "-", 15}};
+
+    for(auto& test : prefixTests) {
+        Lexer myLexer{test.input};
+        Parser myParser{std::make_shared<Lexer>(myLexer)};
+
+        auto program = myParser.parseProgram();
+        checkParserErrors(myParser);
+
+        if (myParser.Errors().size()) { return; }
+
+        if (program->statements.size() != 1) {
+            printf("program.statements does not contain %i statements. Got=%li\n", 1, program->statements.size());
+        }
+
+        auto stmt = std::dynamic_pointer_cast<ExpressionStatement>(program->statements[0]);
+        if (stmt == nullptr) {
+            printf("program.statements[0] is not a ExpressionStatement.\n");
+        }
+
+        auto exp = std::dynamic_pointer_cast<PrefixExpression>(stmt->Value);
+        if (exp == nullptr) {
+            printf("program.statements[0].Value not a PrefixExpression.\n");
+        }
+
+        if (exp->OperatorValue != test.operatorValue) {
+            printf("ident.Value not %s. Got=%s\n", test.operatorValue.c_str(), exp->OperatorValue.c_str());
+        }
+
+        testIntegerLiteral(exp->Right, test.integerValue);
+        }
+    printf("Test run successfully!\n");
+}
+
 int main() {
     // TestLetStatements();
-    TestReturnStatement();
+    // TestReturnStatement();   
+    // TestIdentifierExpression();
+    // TestIntegerLiteralExpression();
+    TestParsingPrefixExpressions();
 }
