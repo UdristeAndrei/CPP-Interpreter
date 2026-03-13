@@ -155,3 +155,23 @@ class PrefixExpression : public Expression {
             return buffer.str();
         }
 };
+
+class InfixExpression : public Expression {
+    public:
+        Token TokenInfixExpression{};
+        std::string OperatorValue{};
+        std::shared_ptr<Expression> Right{};
+        std::shared_ptr<Expression> Left{};
+
+        InfixExpression() = default;
+        InfixExpression(const Token& t, const std::string& v) : TokenInfixExpression(t), OperatorValue(v) {};
+        ~InfixExpression() = default;
+        
+        void expressionNode() const override {};
+        std::string TokenLiteral() const override {return TokenInfixExpression.Literal; };
+        std::string String() const override {
+            std::ostringstream buffer{};
+            buffer << "(" << OperatorValue << Right->String() << ")";
+            return buffer.str();
+        }
+};

@@ -227,10 +227,62 @@ void TestParsingPrefixExpressions() {
         }
 
         if (exp->OperatorValue != test.operatorValue) {
-            printf("ident.Value not %s. Got=%s\n", test.operatorValue.c_str(), exp->OperatorValue.c_str());
+            printf("exp.OperatorValue not %s. Got=%s\n", test.operatorValue.c_str(), exp->OperatorValue.c_str());
         }
 
         testIntegerLiteral(exp->Right, test.integerValue);
+        }
+    printf("Test run successfully!\n");
+}
+
+void TestParsingInfixExpression() {
+    struct InfixTest {
+        std::string input{};
+        int64_t leftValue{};
+        std::string operatorValue{};
+        int64_t rightValue{};
+        
+    };
+
+    std::vector<InfixTest> infixTests{  {"5 + 5;", 5, "+", 5}, 
+                                        {"5 - 5;", 5, "-", 5},
+                                        {"5 * 5;", 5, "*", 5},
+                                        {"5 / 5;", 5, "/", 5},
+                                        {"5 > 5;", 5, ">", 5},
+                                        {"5 < 5;", 5, "<", 5},
+                                        {"5 == 5;", 5, "==", 5},
+                                        {"5 != 5;", 5, "!=", 5}};
+
+    for(auto& test : infixTests) {
+        Lexer myLexer{test.input};
+        Parser myParser{std::make_shared<Lexer>(myLexer)};
+
+        auto program = myParser.parseProgram();
+        checkParserErrors(myParser);
+
+        if (myParser.Errors().size()) { return; }
+
+        if (program->statements.size() != 1) {
+            printf("program.statements does not contain %i statements. Got=%li\n", 1, program->statements.size());
+        }
+
+        auto stmt = std::dynamic_pointer_cast<ExpressionStatement>(program->statements[0]);
+        if (stmt == nullptr) {
+            printf("program.statements[0] is not a ExpressionStatement.\n");
+        }
+
+        auto exp = std::dynamic_pointer_cast<InfixExpression>(stmt->Value);
+        if (exp == nullptr) {
+            printf("program.statements[0].Value not a InfixExpression.\n");
+        }
+
+        testIntegerLiteral(exp->Right, test.leftValue);
+
+        if (exp->OperatorValue != test.operatorValue) {
+            printf("exp.OperatorValue not %s. Got=%s\n", test.operatorValue.c_str(), exp->OperatorValue.c_str());
+        }
+
+        testIntegerLiteral(exp->Right, test.rightValue);
         }
     printf("Test run successfully!\n");
 }
