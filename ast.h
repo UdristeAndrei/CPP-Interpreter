@@ -164,7 +164,7 @@ class InfixExpression : public Expression {
         std::shared_ptr<Expression> Left{};
 
         InfixExpression() = default;
-        InfixExpression(const Token& t, const std::string& v) : TokenInfixExpression(t), OperatorValue(v) {};
+        InfixExpression(const Token& t, const std::string& v, std::shared_ptr<Expression> l): TokenInfixExpression(t), OperatorValue(v), Left(l) {};
         ~InfixExpression() = default;
         
         void expressionNode() const override {};

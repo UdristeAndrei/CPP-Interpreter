@@ -292,5 +292,6 @@ int main() {
     // TestReturnStatement();   
     // TestIdentifierExpression();
     // TestIntegerLiteralExpression();
-    TestParsingPrefixExpressions();
+    // TestParsingPrefixExpressions();
+    TestParsingInfixExpression();
 }

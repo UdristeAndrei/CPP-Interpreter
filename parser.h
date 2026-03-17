@@ -6,7 +6,7 @@
 #define pfninfixParseFs std::function<std::shared_ptr<Expression>(std::shared_ptr<Expression>)>
 
 
-enum Preccedence {
+enum Precedence {
     _ = 0,
     LOWEST = 1,
     EQUALS = 2,         // ==
@@ -15,6 +15,17 @@ enum Preccedence {
     PRODUCT = 5,        // *
     PREFIX = 6,         // -X or !X
     CALL = 6            // foo(x);
+};
+
+std::map<TokenTypeEnum, Precedence> precedences{
+    {TOKEN_EQ, EQUALS},
+    {TOKEN_NOT_EQ, EQUALS},
+    {TOKEN_LT, LESSGREATER},
+    {TOKEN_GT, LESSGREATER},
+    {TOKEN_PLUS, SUM},
+    {TOKEN_MINUS, SUM},
+    {TOKEN_SLASH, PRODUCT},
+    {TOKEN_ASTERISK, PRODUCT}
 };
 
 class Parser {
@@ -56,21 +67,48 @@ class Parser {
             errors.push_back(error.str());
         }
 
+        Precedence peekPrecedence() {
+            if (precedences.find(peekToken.TokenType) != precedences.end()) {
+                return precedences[peekToken.TokenType];
+            } else {
+                return LOWEST;
+            }
+        }
+
+        Precedence curPrecedence() {
+            if (precedences.find(curToken.TokenType) != precedences.end()) {
+                return precedences[curToken.TokenType];
+            } else {
+                return LOWEST;
+            }
+        }
+
         void noPrefixParseFnError(TokenTypeEnum tokenType) {
             std::ostringstream error{};
             error << "no prefix parse function for " << tokenType << " found ";
             errors.push_back(error.str());
         }
 
-        std::shared_ptr<Expression> parseExpression(Preccedence preccedence) {
+        std::shared_ptr<Expression> parseExpression(Precedence preccedence) {
             auto prefix = prefixParseFsn.at(curToken.TokenType);
 
             if (prefix == nullptr) { 
                 noPrefixParseFnError(curToken.TokenType);
                 return nullptr; 
             };
-
             auto leftExp = prefix();
+
+            while (!peekTokenIs(TOKEN_SEMICOLON) && preccedence < peekPrecedence()){
+                auto infix = infixParseFsn.at(peekToken.TokenType);
+                if (infix == nullptr) {
+                    return leftExp;
+                } else {
+                    
+                    nextToken();
+                    leftExp = infix(leftExp);
+                }
+            }
+
             return leftExp;
         }
 
@@ -99,6 +137,14 @@ class Parser {
             return expression;
         }
 
+        std::shared_ptr<Expression> parseInfixExpression(std::shared_ptr<Expression> left) {
+            auto expression = std::make_shared<InfixExpression>(curToken, curToken.Literal, left);
+            auto tokenPrecedence = curPrecedence();
+            nextToken();
+            expression->Right = parseExpression(tokenPrecedence);
+            return expression;
+        }
+
     public:
         Parser(std::shared_ptr<Lexer> l) {
             myLexer = l;
@@ -106,10 +152,23 @@ class Parser {
             nextToken();
             nextToken();
 
-            registerPrefix(TOKEN_BANG, [this]() {return parsePrefixExpression(); });
-            registerPrefix(TOKEN_MINUS, [this]() {return parsePrefixExpression(); });
+            // Register the basic tokens
             registerPrefix(TOKEN_IDENT, [this]() { return parseIdendifier(); });
             registerPrefix(TOKEN_INT, [this]() {return parseIntegerLiteral(); });
+
+            // Register the prefixes
+            registerPrefix(TOKEN_BANG, [this]() {return parsePrefixExpression(); });
+            registerPrefix(TOKEN_MINUS, [this]() {return parsePrefixExpression(); });
+
+            // Register the infixes
+            registerInfix(TOKEN_PLUS, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_MINUS, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_SLASH, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_ASTERISK, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_EQ, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_NOT_EQ, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_LT, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
+            registerInfix(TOKEN_GT, [this](std::shared_ptr<Expression> left) {return parseInfixExpression(left); });
         }
         ~Parser() = default;
 
